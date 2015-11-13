@@ -169,7 +169,7 @@ Minimodem.prototype.QFSK = function(data,period,sFreq,shift){
 
     this.transmit({"config":config,"data":rawData})
 }
- // Binary Amplitude Shift Keying
+// Binary Amplitude Shift Keying
 Minimodem.prototype.BASK = function(data,period,sFreq){
     var data = this.dataToBin(data)
     var config = {"channels":1,"period":period};
@@ -227,7 +227,10 @@ Minimodem.prototype.receive = function(data) {
 
 //Asking for the microphone
 Minimodem.prototype.listen = function(){
-    navigator.webkitGetUserMedia({audio:true},
+    navigator.webkitGetUserMedia(
+        {audio: {
+            optional: [{ echoCancellation: false }]}
+        },
         this.onStream.bind(this),
         function(fail) {console.log(fail)}
     );
