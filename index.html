@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Audio Test</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+    <script src="minimodem.js"></script>
+    <script src="chroma.js"></script>
+    <meta name="author" content="Pablo Garrido">
+</head>
+
+<body>
+    <form>
+        <input type="text" id="text">
+        <input type="button" id="send" value="Send">
+    </form>
+    <p>System Output</p>
+    <canvas id="spectrogramTx" width="800" height="256" style="display: block; background-color: black ;"></canvas>
+    <p>Mic Input</p>
+    <canvas id="spectrogramRx" width="800" height="256" style="display: block; background-color: black ;"></canvas>
+    <div id="received">Mic Input</div>
+
+</body>
+<script>
+$( document ).ready(function() {
+    var m1 = new Minimodem($( "#spectrogramRx" ).get()[0].getContext("2d"))
+    var m2 = new Minimodem($( "#spectrogramTx" ).get()[0].getContext("2d"))
+    m1.listen()
+    $("#send").on("click",function(){
+        var t = $( "#text" ).val();
+        m2.QFSK(t,150,3000,150);
+        //m2.BASK(t,100,8270);
+        //m2.BASK(t,100,11000);
+        //m2.BASK(t,100,16000);
+    })
+});
+</script>
+
+</html>
