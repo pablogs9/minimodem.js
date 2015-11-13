@@ -10,6 +10,9 @@ function Minimodem(ctx) {
     this.decodeNode;
     this.decodeFunction;
     this.antialias;
+    this.sampleBuffer = [];
+    this.symbolBuffer = [];
+    this.dataBuffer = [];
 
     //Analyser to get FFT data
     this.analyser = this.audioContext.createAnalyser();
@@ -183,10 +186,10 @@ Minimodem.prototype.BASK = function(data,period,sFreq){
     for (i = 0 ; i < data.length ; i++){
         var instant = [];
         for (channel = 0 ; channel < config["channels"] ; channel++){
-            if (data[i] == "0"){
-                var symbol = {"frequency":sFreq,"gain":0.1}
+            if (data[i] == "1"){
+                var symbol = {"frequency":sFreq,"gain":1}
             }else{
-                var symbol = {"frequency":sFreq,"gain":0.5}
+                var symbol = {"frequency":sFreq,"gain":0.8}
             }
             instant.push(symbol)
         }
@@ -207,22 +210,84 @@ Minimodem.prototype.dataToBin = function(t) {
 
 //Receive audio info processing
 Minimodem.prototype.receive = function(data) {
-    // var array = new Float32Array(this.analyser.frequencyBinCount);
-    // this.analyser.getFloatFrequencyData(array);
-    //
-    // var freq = 4410
-    // var spread = 1000
-    // var thr = this.analyser.minDecibels + 0.1*(this.analyser.maxDecibels - this.analyser.minDecibels)
-    // var nyq = this.audioContext.sampleRate/2
-    //
-    // var s = "";
-    // for (var i = freq-spread; i < freq+spread; i++) {
-    //     var index = Math.round(i/nyq * array.length);
-    //     if(array[index] > thr){
-    //         s = (i/1000).toFixed(2) +  " kHz: " + array[index].toFixed(4) + " dB"
-    //     }
-    // }
-    // $("#received").html(s)
+    var array = new Float32Array(this.analyser.frequencyBinCount);
+    this.analyser.getFloatFrequencyData(array);
+
+    var freq = 11000
+    //var spread = 1
+    var thr = this.analyser.minDecibels + 0.8*(this.analyser.maxDecibels - this.analyser.minDecibels)
+    var nyq = this.audioContext.sampleRate/2
+    var period = 100
+
+
+    //var s = "";
+    //for (var i = freq; i < freq+spread; i++) {
+    var index = Math.round(freq/nyq * array.length);
+    if(array[index] > thr){
+        this.sampleBuffer.push({"timestamp":this.audioContext.currentTime*1000,"frequency":freq,"amplitude":array[index]})
+        //s = (i/1000).toFixed(2) +  " kHz: " + array[index].toFixed(4) + " dB"
+    }
+    //}
+    if (this.sampleBuffer.length > 0 && (this.sampleBuffer[this.sampleBuffer.length-1]["timestamp"]-this.sampleBuffer[0]["timestamp"]) >= period){
+        this.decodeBASK(period)
+    }
+    //$("#received").html(s)
+}
+
+Minimodem.prototype.decodeBASK = function(period){
+    var i = 0
+    var mean = 0
+    while(this.sampleBuffer[i]["timestamp"]-this.sampleBuffer[0]["timestamp"] <= period){
+        mean += this.sampleBuffer[i]["amplitude"]
+        i += 1
+    }
+    //console.log("sample count: " + i + " samples mean: " + mean + " dB thr: " + decodeThr)
+    mean = mean/i
+    this.symbolBuffer.push(mean)
+    this.sampleBuffer.splice(0, i-1);
+
+    if(this.symbolBuffer.length >= 7){
+        var min = 999999;
+        var max = -999999;
+
+        //Calculate symbol amplitude threshold
+        for (var i = 0; i < 7; i++) {
+            if(this.symbolBuffer[i] > max){
+                max = this.symbolBuffer[i]
+            }
+            if(this.symbolBuffer[i] < min){
+                min = this.symbolBuffer[i]
+            }
+        }
+        var decodeThr = (min+max)/2
+        //console.log("max: " + max + " min: " + min + " Decode THR: " + decodeThr)
+
+        //Decode symbols
+        for (var i = 0; i < 7; i++) {
+            if(this.symbolBuffer[i] > decodeThr){
+                this.dataBuffer.push("1")
+            }else{
+                this.dataBuffer.push("0")
+            }
+        }
+        this.symbolBuffer.splice(0,8);
+        //console.log(this.dataBuffer)
+
+        if(this.dataBuffer.length >= 7){
+            this.decodeData()
+            this.dataBuffer.splice(0,8);
+        }
+    }
+}
+
+Minimodem.prototype.decodeData = function(){
+    var output = '';
+    for (var i = 0 ; i < this.dataBuffer.length; i += 7) {
+        output += String.fromCharCode( parseInt( this.dataBuffer.slice( i, i+7 ), 2 ) );
+    }
+    console.log("Received data: " + this.dataBuffer)
+    //$("#received").html(output)
+    return output
 }
 
 //Asking for the microphone

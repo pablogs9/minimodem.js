@@ -27,8 +27,8 @@ $( document ).ready(function() {
     m1.listen()
     $("#send").on("click",function(){
         var t = $( "#text" ).val();
-        m2.QFSK(t,150,3000,150);
-        //m2.BASK(t,100,8270);
+        //m2.QFSK(t,150,3000,150);
+        m2.BASK(t,100,11000);
         //m2.BASK(t,100,11000);
         //m2.BASK(t,100,16000);
     })
