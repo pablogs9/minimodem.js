@@ -1,2 +1,16 @@
 # minimodem.js
-Kamal Mostafa's [minimodem](https://github.com/kamalmostafa/minimodem) clone in javascript
+Kamal Mostafa's [minimodem](https://github.com/kamalmostafa/minimodem) clone in JavaScript
+
+## Installation
+Clone the repository
+'''
+git clone git@github.com:pablogs9/minimodem.js.git
+'''
+
+Run it on a web server (like Python SimpleHTTPServer)
+'''
+cd minimodem.js
+python -m SimpleHTTPServer
+'''
+
+Open it in a browser 'localhost:8000'
