@@ -8,10 +8,11 @@ git clone git@github.com:pablogs9/minimodem.js.git
 ```
 
 Serve the files with a web server (like Python SimpleHTTPServer)
+
 *Audio WebAPI won't work if you open local files in a browser*
 ```
 cd minimodem.js
 python -m SimpleHTTPServer
 ```
 
-Open it in a browser `localhost:8000`
+Open it in a browser: `localhost:8000`
