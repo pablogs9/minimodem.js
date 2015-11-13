@@ -7,7 +7,8 @@ Clone the repository
 git clone git@github.com:pablogs9/minimodem.js.git
 ```
 
-Run it on a web server (like Python SimpleHTTPServer)
+Serve the files with a web server (like Python SimpleHTTPServer)
+*Audio WebAPI won't work if you open local files in a browser*
 ```
 cd minimodem.js
 python -m SimpleHTTPServer
