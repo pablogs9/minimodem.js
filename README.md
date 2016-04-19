@@ -1,6 +1,9 @@
 # minimodem.js
 Kamal Mostafa's [minimodem](https://github.com/kamalmostafa/minimodem) clone in JavaScript
 
+![Sample](https://cdn.hackaday.io/images/2487351447532503573.png)
+
+
 ## Installation
 Clone the repository
 ```
